@@ -1,17 +1,61 @@
-function applyTheme(theme) {
-document.documentElement.setAttribute('data-theme', theme);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TuxShell Settings</title>
+<link rel="stylesheet" href="Tmuxshell.css" />
+<style>
+/* Minimal theme styles */
+body.dark-theme {
+background-color: #121212;
+color: #e0e0e0;
+}
+body.light-theme {
+background-color: #fefefe;
+color: #121212;
+}
+label, select {
+font-size: 1rem;
+margin: 0.5rem 0;
+}
+</style>
+</head>
+<body>
+<h1>TuxShell Settings</h1>
+
+<label for="theme-toggle">Theme:</label>
+<select id="theme-toggle" aria-label="Select theme">
+<option value="dark">Dark</option>
+<option value="light">Light</option>
+</select>
+
+<script>
+const themeSelect = document.getElementById('theme-toggle');
+
+// Load saved theme from localStorage or default to dark
+function loadTheme() {
+const saved = localStorage.getItem('tuxshell-theme') || 'dark';
+document.body.classList.remove('dark-theme', 'light-theme');
+document.body.classList.add(saved + '-theme');
+themeSelect.value = saved;
+}
+
+// Save theme and apply class
+function saveTheme(theme) {
 localStorage.setItem('tuxshell-theme', theme);
+document.body.classList.remove('dark-theme', 'light-theme');
+document.body.classList.add(theme + '-theme');
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-const savedTheme = localStorage.getItem('tuxshell-theme') || 'dark';
-applyTheme(savedTheme);
+themeSelect.addEventListener('change', (e) => {
+saveTheme(e.target.value);
+});
 
-const themeToggle = document.getElementById('theme-toggle');
-if (themeToggle) {
-themeToggle.value = savedTheme;
-themeToggle.addEventListener('change', (e) => {
-applyTheme(e.target.value);
-});
-}
-});
+// Initialize on page load
+loadTheme();
+</script>
+
+<script src="webui.js"></script>
+</body>
+</html>
