@@ -1,0 +1,17 @@
+function applyTheme(theme) {
+document.documentElement.setAttribute('data-theme', theme);
+localStorage.setItem('tuxshell-theme', theme);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+const savedTheme = localStorage.getItem('tuxshell-theme') || 'dark';
+applyTheme(savedTheme);
+
+const themeToggle = document.getElementById('theme-toggle');
+if (themeToggle) {
+themeToggle.value = savedTheme;
+themeToggle.addEventListener('change', (e) => {
+applyTheme(e.target.value);
+});
+}
+});
