@@ -1,19 +1,25 @@
 #!/bin/bash
 
-set -e
-set -u
+set -euo pipefail
 
 echo "[+] Installing development/build tools..."
 
-# Detect package manager and install build tools accordingly
+# Check if running as root or use sudo
+if [ "$EUID" -ne 0 ]; then
+SUDO='sudo'
+else
+SUDO=''
+fi
+
+# Detect package manager and install build tools
 if command -v apt >/dev/null 2>&1; then
-# Debian/Ubuntu/iSH with apt
-apt update -y
-apt install -y gcc g++ make cmake gdb
+echo "[*] Detected apt package manager"
+$SUDO apt update -y
+$SUDO apt install -y gcc g++ make cmake gdb
 elif command -v apk >/dev/null 2>&1; then
-# Alpine/iSH with apk
-apk update
-apk add gcc g++ make cmake gdb
+echo "[*] Detected apk package manager"
+$SUDO apk update
+$SUDO apk add gcc g++ make cmake gdb
 else
 echo "[!] No supported package manager found (apt or apk). Cannot install build tools."
 exit 1
