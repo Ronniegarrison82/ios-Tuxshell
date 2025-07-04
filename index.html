@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AI Linux Console</title>
+
+<!-- Content Security Policy -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https://cdn.jsdelivr.net; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline';" />
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css" />
+
+<style>
+/* Base reset & layout */
+html, body {
+margin: 0;
+padding: 0;
+background: #000;
+color: #0f0;
+font-family: monospace, monospace;
+height: 100vh;
+display: flex;
+flex-direction: column;
+overflow: hidden;
+}
+
+header, main, footer {
+width: 100%;
+box-sizing: border-box;
+}
+
+header {
+background: #111;
+color: #0f0;
+padding: 0.5em 1em;
+font-size: 0.9em;
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+
+#user-info {
+display: flex;
+gap: 1em;
+}
+
+main {
+flex: 1;
+display: flex;
+flex-direction: column;
+overflow: hidden;
+}
+
+#terminal-container {
+flex: 1;
+padding: 0.5em;
+overflow-y: auto;
+outline: none;
+}
+
+#editor-container {
+height: 30vh;
+border-top: 1px solid #0f0;
+}
+
+footer {
+background: #111;
+padding: 0.5em;
+border-top: 1px solid #0f0;
+display: flex;
+justify-content: space-around;
+}
+
+button {
+background: #0f0;
+color: #000;
+border: none;
+padding: 0.5em 1em;
+font-weight: bold;
+cursor: pointer;
+font-size: 1em;
+border-radius: 4px;
+transition: background-color 0.3s ease;
+}
+
+button:hover, button:focus {
+background-color: #0c0;
+outline: none;
+}
+
+button:disabled {
+background-color: #060;
+cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+#editor-container {
+height: 25vh;
+}
+footer {
+flex-wrap: wrap;
+gap: 0.5em;
+}
+}
+</style>
+</head>
+<body>
+
+<header role="banner" aria-label="User information and path">
+<div id="user-info">
+<div>User: <strong id="username">guest</strong></div>
+<div>Path: <span id="user-path">/home/guest/modules/</span></div>
+<div id="disk-space" aria-live="polite">Disk: 0GB</div>
+</div>
+<div id="sync-status" aria-live="polite" title="Sync status">Not Synced</div>
+</header>
+
+<main role="main">
+<div id="terminal-container" tabindex="0" aria-label="Terminal window"></div>
+<div id="editor-container" aria-label="Script editor"></div>
+</main>
+
+<footer role="contentinfo" aria-label="Terminal control buttons">
+<button id="run-script" aria-keyshortcuts="Enter" title="Run script (Enter)">Run (Enter)</button>
+<button id="paste" aria-keyshortcuts="Shift+P" title="Paste clipboard (Shift+P)">Paste (Shift+P)</button>
+<button id="save-file" aria-keyshortcuts="Shift+X" title="Save file (Shift+X)">Save (Shift+X)</button>
+<button id="return-home" aria-keyshortcuts="Shift+C" title="Return home (Shift+C)">Home (Shift+C)</button>
+</footer>
+
+<!-- Terminal + Editor Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.38.0/min/vs/loader.js"></script>
+
+<!-- User loader -->
+<script>
+const defaultUser = localStorage.getItem("aienv-user") || "guest";
+document.getElementById("username").textContent = defaultUser;
+document.getElementById("user-path").textContent = `/home/${defaultUser}/modules/`;
+
+const syncStatus = document.getElementById('sync-status');
+function updateSyncStatus(msg, isError = false) {
+syncStatus.textContent = msg;
+syncStatus.style.color = isError ? '#f00' : '#0f0';
+}
+</script>
+
+<!-- Core terminal behavior -->
+<script src="terminal.js"></script>
+
+<!-- New: Disk Manager -->
+<script src="disk-manager.js"></script>
+
+</body>
+</html>
