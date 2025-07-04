@@ -1,116 +1,177 @@
 /* General reset */
 * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: 'Source Code Pro', monospace, monospace;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+font-family: 'Source Code Pro', monospace, monospace;
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
 }
 
 /* Body with dark background */
 body {
-  background-color: #0a0a0a;
-  color: #0f0;
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
-  user-select: none;
+background-color: #0a0a0a;
+color: #0f0;
+display: flex;
+flex-direction: column;
+height: 100vh;
+overflow: hidden;
+user-select: none;
 }
 
 /* Container for terminal and editor */
 #container {
-  display: flex;
-  flex-direction: row;
-  height: 85vh;
-  width: 100%;
-  gap: 10px;
-  padding: 10px;
+display: flex;
+flex-direction: row;
+height: 85vh;
+width: 100%;
+gap: 10px;
+padding: 10px;
 }
 
 /* Terminal container styles */
 #terminal-container {
-  flex: 2;
-  background-color: #000;
-  border: 1px solid #0f0;
-  border-radius: 6px;
-  padding: 10px;
-  overflow-y: auto;
-  box-shadow: 0 0 10px #0f0aa0;
-  min-width: 300px;
+flex: 2;
+background-color: #000;
+border: 1px solid #0f0;
+border-radius: 6px;
+padding: 10px;
+overflow-y: auto;
+box-shadow: 0 0 10px #0f0aa0;
+min-width: 300px;
+
+/* Allow text selection for copy */
+user-select: text;
+-webkit-user-select: text;
+-moz-user-select: text;
+-ms-user-select: text;
+
+/* Smooth scrolling on iOS */
+-webkit-overflow-scrolling: touch;
 }
 
 /* Editor container styles */
 #editor-container {
-  flex: 1;
-  background-color: #111;
-  border: 1px solid #0f0;
-  border-radius: 6px;
-  padding: 10px;
-  overflow-y: auto;
-  box-shadow: 0 0 8px #0fa0a0;
-  min-width: 200px;
+flex: 1;
+background-color: #111;
+border: 1px solid #0f0;
+border-radius: 6px;
+padding: 10px;
+overflow-y: auto;
+box-shadow: 0 0 8px #0fa0a0;
+min-width: 200px;
+
+/* Allow text selection for copy */
+user-select: text;
+-webkit-user-select: text;
+-moz-user-select: text;
+-ms-user-select: text;
+
+/* Smooth scrolling on iOS */
+-webkit-overflow-scrolling: touch;
 }
 
 /* Buttons container */
 #buttons {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  padding: 15px 0;
-  background-color: #040404;
-  border-top: 1px solid #0f0;
+display: flex;
+justify-content: center;
+gap: 15px;
+padding: 15px 0;
+background-color: #040404;
+border-top: 1px solid #0f0;
 }
 
 /* Buttons styling */
 button {
-  background-color: transparent;
-  border: 2px solid #0f0;
-  color: #0f0;
-  font-weight: 600;
-  padding: 10px 20px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.25s ease, color 0.25s ease;
-  user-select: none;
+background-color: transparent;
+border: 2px solid #0f0;
+color: #0f0;
+font-weight: 600;
+padding: 10px 20px;
+border-radius: 6px;
+cursor: pointer;
+transition: background-color 0.25s ease, color 0.25s ease;
+user-select: none;
+touch-action: manipulation; /* Improves touch responsiveness */
 }
 
-button:hover, button:focus {
-  background-color: #0f0;
-  color: #000;
-  outline: none;
+button:hover,
+button:focus {
+background-color: #0f0;
+color: #000;
+outline: none;
 }
 
-/* Responsive layout for smaller screens */
-@media (max-width: 768px) {
-  #container {
-    flex-direction: column;
-    height: auto;
-  }
-  #terminal-container, #editor-container {
-    min-width: auto;
-    height: 300px;
-  }
-  #buttons {
-    flex-wrap: wrap;
-  }
+button:focus-visible {
+outline: 2px solid #0f0;
+outline-offset: 2px;
 }
 
 /* Scrollbar styling for WebKit */
 #terminal-container::-webkit-scrollbar,
 #editor-container::-webkit-scrollbar {
-  width: 8px;
+width: 8px;
 }
 
 #terminal-container::-webkit-scrollbar-track,
 #editor-container::-webkit-scrollbar-track {
-  background: #111;
+background: #111;
 }
 
 #terminal-container::-webkit-scrollbar-thumb,
 #editor-container::-webkit-scrollbar-thumb {
-  background-color: #0f0;
-  border-radius: 10px;
-  border: 2px solid #111;
+background-color: #0f0;
+border-radius: 10px;
+border: 2px solid #111;
+}
+
+/* Terminal controls container (history buttons) */
+#terminal-controls {
+display: flex;
+justify-content: center;
+gap: 10px;
+padding: 8px 0;
+background-color: #040404;
+border-top: 1px solid #0f0;
+}
+
+/* History navigation buttons */
+#terminal-controls button {
+background-color: transparent;
+border: 2px solid #0f0;
+color: #0f0;
+font-weight: 700;
+font-size: 1.25rem;
+width: 40px;
+height: 40px;
+border-radius: 6px;
+cursor: pointer;
+transition: background-color 0.25s ease, color 0.25s ease;
+user-select: none;
+}
+
+#terminal-controls button:hover,
+#terminal-controls button:focus {
+background-color: #0f0;
+color: #000;
+outline: none;
+}
+
+/* Responsive layout for smaller screens */
+@media (max-width: 768px) {
+#container {
+flex-direction: column;
+height: auto;
+}
+#terminal-container,
+#editor-container {
+min-width: auto;
+height: 300px;
+}
+#buttons {
+flex-wrap: wrap;
+}
+#terminal-controls {
+gap: 15px;
+}
 }
