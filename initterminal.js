@@ -7,114 +7,134 @@ const saveLogBtn = document.getElementById('save-log');
 let term;
 let editor;
 let logBuffer = '';
-
-// Initialize xterm.js Terminal with history and input handling
-function initTerminal() {
-term = new Terminal({
-cursorBlink: true,
-theme: { background: '#000', foreground: '#0f0' },
-});
-term.open(terminalContainer);
-term.writeln('AI Environment Terminal Console');
-term.prompt = () => {
-term.write('\r\n$ ');
-};
-term.prompt();
-
-let command = '';
 const history = [];
 let historyIndex = -1;
+let command = '';
 
-term.onKey(e => {
+// Initialize xterm.js Terminal with input + history
+function initTerminal() {
+if (!terminalContainer) {
+console.error('[!] Terminal container not found');
+return;
+}
+
+term = new Terminal({
+cursorBlink: true,
+theme: {
+background: '#000',
+foreground: '#0f0',
+},
+});
+
+term.open(terminalContainer);
+term.writeln('AI Environment Terminal Console');
+prompt();
+
+term.onKey(handleKey);
+}
+
+// Handle keyboard input for the terminal
+function handleKey(e) {
 const ev = e.domEvent;
 const printable = !ev.altKey && !ev.ctrlKey && !ev.metaKey;
 
-if (ev.keyCode === 13) { // Enter
+switch (ev.keyCode) {
+case 13: // Enter
 if (command.trim()) {
 history.push(command);
 historyIndex = history.length;
 runCommand(command);
 }
 command = '';
-} else if (ev.keyCode === 8) { // Backspace
+break;
+
+case 8: // Backspace
 if (command.length > 0) {
 command = command.slice(0, -1);
 term.write('\b \b');
 }
-} else if (ev.keyCode === 38) { // Up Arrow
+break;
+
+case 38: // Up arrow
 if (history.length && historyIndex > 0) {
-while (command.length > 0) {
-term.write('\b \b');
-command = command.slice(0, -1);
-}
+clearCommandLine();
 historyIndex--;
 command = history[historyIndex];
 term.write(command);
 }
-} else if (ev.keyCode === 40) { // Down Arrow
+break;
+
+case 40: // Down arrow
 if (history.length && historyIndex < history.length - 1) {
-while (command.length > 0) {
-term.write('\b \b');
-command = command.slice(0, -1);
-}
+clearCommandLine();
 historyIndex++;
 command = history[historyIndex];
 term.write(command);
 } else if (historyIndex === history.length - 1) {
+clearCommandLine();
+historyIndex = history.length;
+command = '';
+}
+break;
+
+default:
+if (printable) {
+command += e.key;
+term.write(e.key);
+}
+break;
+}
+}
+
+// Clear the current line in the terminal
+function clearCommandLine() {
 while (command.length > 0) {
 term.write('\b \b');
 command = command.slice(0, -1);
 }
-historyIndex = history.length;
-command = '';
-}
-} else if (printable) {
-command += e.key;
-term.write(e.key);
-}
-});
 }
 
-// Run command logic with support for 'clear' command and simulated output
-function runCommand(cmd) {
+// Run command by calling backend API
+async function runCommand(cmd) {
 const trimmed = cmd.trim();
-if (!trimmed) {
-term.prompt();
-return;
-}
+term.writeln(`\nRunning: ${trimmed}`);
 
 if (trimmed === 'clear') {
 term.clear();
-term.prompt();
+prompt();
 return;
 }
 
-term.writeln('');
-term.writeln(`Running: ${trimmed}`);
+try {
+const res = await fetch('/run', {
+method: 'POST',
+headers: {'Content-Type': 'application/json'},
+body: JSON.stringify({command: trimmed}),
+});
+const data = await res.json();
+if (data.output) {
+term.writeln(data.output);
+logBuffer += `$ ${trimmed}\n${data.output}\n`;
+} else if (data.error) {
+term.writeln(`Error: ${data.error}`);
+} else {
+term.writeln('Unknown error');
+}
+} catch (err) {
+term.writeln(`Fetch error: ${err.message}`);
+}
 
-fakeBackendExecute(trimmed)
-.then(output => {
-term.writeln(output);
-logBuffer += `$ ${trimmed}\n${output}\n`;
-term.prompt();
+prompt();
 term.scrollToBottom();
-})
-.catch(err => {
-term.writeln(`Error: ${err}`);
-term.prompt();
-});
 }
 
-// Simulate backend command execution (replace later with real backend/API)
-function fakeBackendExecute(cmd) {
-return new Promise(resolve => {
-setTimeout(() => {
-resolve(`Output for command: "${cmd}" (Simulated)`);
-}, 1000);
-});
+// Prompt symbol
+function prompt() {
+term.write('\r\n$ ');
+term.scrollToBottom();
 }
 
-// Initialization on window load (add your editor and buttons init here as well)
+// Initialize terminal on window load
 window.onload = () => {
 initTerminal();
 // Initialize editor, buttons, etc.
