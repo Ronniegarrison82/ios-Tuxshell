@@ -1,29 +1,121 @@
-# 📱 Portable Linux-Style Terminal Environment for iOS
+const terminalContainer = document.getElementById('terminal-container');
+const editorContainer = document.getElementById('editor-container');
+const runBtn = document.getElementById('run-script');
+const saveScriptBtn = document.getElementById('save-script');
+const saveLogBtn = document.getElementById('save-log');
 
-Welcome to **TuxShell** — a fully portable, modular Linux terminal environment for iOS, running entirely within your GitHub repo folder. Whether you're on a jailbroken device or using the [iSH Linux shell emulator](https://apps.apple.com/us/app/ish-shell/id1436902243), this project gives you a persistent, sandboxed Linux shell experience right from your iPhone or iPad.
+let term;
+let editor;
+let logBuffer = '';
 
-> **⚠️ Note:** This environment is fully self-contained and designed for developers. Use responsibly, especially on jailbroken devices.
+// Initialize xterm.js Terminal with history and input handling
+function initTerminal() {
+term = new Terminal({
+cursorBlink: true,
+theme: { background: '#000', foreground: '#0f0' },
+});
+term.open(terminalContainer);
+term.writeln('AI Environment Terminal Console');
+term.prompt = () => {
+term.write('\r\n$ ');
+};
+term.prompt();
 
----
+let command = '';
+const history = [];
+let historyIndex = -1;
 
-## 🎯 Project Goals
+term.onKey(e => {
+const ev = e.domEvent;
+const printable = !ev.altKey && !ev.ctrlKey && !ev.metaKey;
 
-- Deliver a complete, self-contained Linux-style terminal environment for iOS
-- Support local development, shell commands, package management, and backups
-- Provide a modular and portable setup that works across iSH, jailbroken terminals, and browser-based web UI
-- Enable full syncing with GitHub for backups and version control
+if (ev.keyCode === 13) { // Enter
+if (command.trim()) {
+history.push(command);
+historyIndex = history.length;
+runCommand(command);
+}
+command = '';
+} else if (ev.keyCode === 8) { // Backspace
+if (command.length > 0) {
+command = command.slice(0, -1);
+term.write('\b \b');
+}
+} else if (ev.keyCode === 38) { // Up Arrow
+if (history.length && historyIndex > 0) {
+while (command.length > 0) {
+term.write('\b \b');
+command = command.slice(0, -1);
+}
+historyIndex--;
+command = history[historyIndex];
+term.write(command);
+}
+} else if (ev.keyCode === 40) { // Down Arrow
+if (history.length && historyIndex < history.length - 1) {
+while (command.length > 0) {
+term.write('\b \b');
+command = command.slice(0, -1);
+}
+historyIndex++;
+command = history[historyIndex];
+term.write(command);
+} else if (historyIndex === history.length - 1) {
+while (command.length > 0) {
+term.write('\b \b');
+command = command.slice(0, -1);
+}
+historyIndex = history.length;
+command = '';
+}
+} else if (printable) {
+command += e.key;
+term.write(e.key);
+}
+});
+}
 
----
+// Run command logic with support for 'clear' command and simulated output
+function runCommand(cmd) {
+const trimmed = cmd.trim();
+if (!trimmed) {
+term.prompt();
+return;
+}
 
-## 🚀 Features
+if (trimmed === 'clear') {
+term.clear();
+term.prompt();
+return;
+}
 
-✅ Portable and runs entirely within iOS Files
-✅ Linux-style shell experience: Bash, Coreutils, Git, SSH
-✅ Lightweight language runtimes: Python, NodeJS, Ruby, PHP
-✅ Scripts for setup, sync, automation, and monitoring
-✅ Web-based terminal UI
-✅ Works in [iSH (App Store)](https://apps.apple.com/us/app/ish-shell/id1436902243), jailbroken shells, or browser
+term.writeln('');
+term.writeln(`Running: ${trimmed}`);
 
----
+fakeBackendExecute(trimmed)
+.then(output => {
+term.writeln(output);
+logBuffer += `$ ${trimmed}\n${output}\n`;
+term.prompt();
+term.scrollToBottom();
+})
+.catch(err => {
+term.writeln(`Error: ${err}`);
+term.prompt();
+});
+}
 
-## 🧱 File Structure
+// Simulate backend command execution (replace later with real backend/API)
+function fakeBackendExecute(cmd) {
+return new Promise(resolve => {
+setTimeout(() => {
+resolve(`Output for command: "${cmd}" (Simulated)`);
+}, 1000);
+});
+}
+
+// Initialization on window load (add your editor and buttons init here as well)
+window.onload = () => {
+initTerminal();
+// Initialize editor, buttons, etc.
+};
