@@ -1,121 +1,39 @@
-const terminalContainer = document.getElementById('terminal-container');
-const editorContainer = document.getElementById('editor-container');
-const runBtn = document.getElementById('run-script');
-const saveScriptBtn = document.getElementById('save-script');
-const saveLogBtn = document.getElementById('save-log');
+# 📱 TuxShell — Portable Linux-Style Terminal Environment for iOS
 
-let term;
-let editor;
-let logBuffer = '';
+## 🔧 Project Status: Under Construction 🚧
 
-// Initialize xterm.js Terminal with history and input handling
-function initTerminal() {
-term = new Terminal({
-cursorBlink: true,
-theme: { background: '#000', foreground: '#0f0' },
-});
-term.open(terminalContainer);
-term.writeln('AI Environment Terminal Console');
-term.prompt = () => {
-term.write('\r\n$ ');
-};
-term.prompt();
+TuxShell is currently **under active development**.  
 
-let command = '';
-const history = [];
-let historyIndex = -1;
+Some features and modules may be incomplete, unstable, or subject to change.  
 
-term.onKey(e => {
-const ev = e.domEvent;
-const printable = !ev.altKey && !ev.ctrlKey && !ev.metaKey;
+Feedback, bug reports, and contributions are welcome!
+Welcome to **TuxShell**, a fully portable and modular Linux terminal environment built for iOS devices. Whether you're running a jailbroken iPhone or using the [iSH Linux shell emulator](https://apps.apple.com/us/app/ish-shell/id1436902243), this project gives you a persistent, sandboxed Linux shell experience — all self-contained within a GitHub repository folder and fully synced via Git.
+> ⚠️ **Disclaimer**: This environment is designed for developers and advanced users. Use responsibly, especially on jailbroken devices
+## 🎯 Project Goals
 
-if (ev.keyCode === 13) { // Enter
-if (command.trim()) {
-history.push(command);
-historyIndex = history.length;
-runCommand(command);
-}
-command = '';
-} else if (ev.keyCode === 8) { // Backspace
-if (command.length > 0) {
-command = command.slice(0, -1);
-term.write('\b \b');
-}
-} else if (ev.keyCode === 38) { // Up Arrow
-if (history.length && historyIndex > 0) {
-while (command.length > 0) {
-term.write('\b \b');
-command = command.slice(0, -1);
-}
-historyIndex--;
-command = history[historyIndex];
-term.write(command);
-}
-} else if (ev.keyCode === 40) { // Down Arrow
-if (history.length && historyIndex < history.length - 1) {
-while (command.length > 0) {
-term.write('\b \b');
-command = command.slice(0, -1);
-}
-historyIndex++;
-command = history[historyIndex];
-term.write(command);
-} else if (historyIndex === history.length - 1) {
-while (command.length > 0) {
-term.write('\b \b');
-command = command.slice(0, -1);
-}
-historyIndex = history.length;
-command = '';
-}
-} else if (printable) {
-command += e.key;
-term.write(e.key);
-}
-});
-}
+- ✅ Provide a complete, self-contained Linux-style terminal for iOS  
 
-// Run command logic with support for 'clear' command and simulated output
-function runCommand(cmd) {
-const trimmed = cmd.trim();
-if (!trimmed) {
-term.prompt();
-return;
-}
+- ✅ Enable shell commands, local development, and package management  
 
-if (trimmed === 'clear') {
-term.clear();
-term.prompt();
-return;
-}
+- ✅ Support automation, monitoring, and backups  
 
-term.writeln('');
-term.writeln(`Running: ${trimmed}`);
+- ✅ Allow syncing with GitHub for persistence and version control  
 
-fakeBackendExecute(trimmed)
-.then(output => {
-term.writeln(output);
-logBuffer += `$ ${trimmed}\n${output}\n`;
-term.prompt();
-term.scrollToBottom();
-})
-.catch(err => {
-term.writeln(`Error: ${err}`);
-term.prompt();
-});
-}
+- ✅ Run seamlessly in iSH, jailbroken terminals, or a web-based UI  
+## 🚀 Features
+- 📦 Portable — runs entirely inside your iOS Files app  
 
-// Simulate backend command execution (replace later with real backend/API)
-function fakeBackendExecute(cmd) {
-return new Promise(resolve => {
-setTimeout(() => {
-resolve(`Output for command: "${cmd}" (Simulated)`);
-}, 1000);
-});
-}
+- 🐚 Linux-style shell with Bash, Coreutils, Git, SSH  
 
-// Initialization on window load (add your editor and buttons init here as well)
-window.onload = () => {
-initTerminal();
-// Initialize editor, buttons, etc.
-};
+- 🧠 Lightweight runtimes: Python, NodeJS, Ruby, PHP  
+
+- 📁 Fully modular file structure for customization  
+
+- 🌐 Web-based terminal UI included  
+
+- 🔄 GitHub syncing, backup, and automation scripts  
+
+- 📱 Compatible with iSH and jailbroken iOS terminals  
+## ⚡ Quickstart
+# Step 1: Clone the repo inside the Files app (via iSH or Terminal)
+git clone https://github.com/Ronniegarrison82/ios-Tuxshell.git
