@@ -35,5 +35,16 @@ Welcome to **TuxShell**, a fully portable and modular Linux terminal environment
 
 - 📱 Compatible with iSH and jailbroken iOS terminals  
 ## ⚡ Quickstart
-# Step 1: Clone the repo inside the Files app (via iSH or Terminal)
-git clone https://github.com/Ronniegarrison82/ios-Tuxshell.git
+## ⚡ Quickstart
+
+### ✅ Option 1: One-Liner Bootstrap (Recommended)
+
+Use this to auto-install GitHub CLI, clone the project, and initialize everything:
+
+```bash
+curl -s https://raw.githubusercontent.com/Ronniegarrison82/iOS-Tuxshell/bootstrap-setup/scripts/bootstrap_gh.sh | bash
+---
+
+This gives your users **a guided setup (Option 1)** and **a fallback/manual setup (Option 2)** — best practice for open source.
+
+Would you like me to generate a version of this `README.md` file for direct copy/paste with all your current sections included?
