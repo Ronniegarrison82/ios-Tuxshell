@@ -1,3 +1,4 @@
+#!/bin/sh
 # ~/.profile - TuxShell environment bootstrap
 
 # Source user's ~/.bashrc if it exists
