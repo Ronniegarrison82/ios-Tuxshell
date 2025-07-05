@@ -19,64 +19,39 @@ fi
 
 echo "[*] Detected package manager: $PKG_MGR"
 
-# Common install function for apt and apk
+# Detect if sudo is available (skip if not)
+SUDO=""
+if command -v sudo >/dev/null 2>&1; then
+SUDO="sudo"
+fi
+
 install_packages() {
 local pkgs=("$@")
 if [ "$PKG_MGR" = "apt" ]; then
 echo "[*] Updating apt repositories..."
-sudo apt update -y
+$SUDO apt update -y
 echo "[*] Upgrading installed packages..."
-sudo apt upgrade -y
+$SUDO apt upgrade -y
 echo "[*] Installing packages: ${pkgs[*]}"
-sudo apt install -y "${pkgs[@]}"
+$SUDO apt install -y "${pkgs[@]}"
 else
 echo "[*] Updating apk repositories..."
-sudo apk update
+$SUDO apk update
 echo "[*] Upgrading installed packages..."
-sudo apk upgrade
+$SUDO apk upgrade
 echo "[*] Installing packages: ${pkgs[*]}"
-sudo apk add --no-cache "${pkgs[@]}"
+$SUDO apk add --no-cache "${pkgs[@]}"
 fi
 }
 
-# Essential packages for both systems
-COMMON_PKGS=(
-build-essential # Debian only, will be ignored in apk
-build-base # Alpine equivalent (apk)
-curl
-wget
-git
-nano
-vim
-python3
-python3-pip
-python3-venv
-nodejs
-npm
-bash-completion
-tmux
-htop
-screen
-unzip
-zip
-man-db
-fish
-net-tools
-iputils-ping
-tcpdump
-jq
-)
-
-# Separate pkg arrays for apt and apk to handle differences
+# Define packages per package manager (do NOT mix build-essential/build-base)
 if [ "$PKG_MGR" = "apt" ]; then
-# Debian/Ubuntu package names
 PKGS=(
 build-essential curl wget git nano vim python3 python3-pip python3-venv
 nodejs npm bash-completion tmux htop screen unzip zip man-db fish net-tools
 iputils-ping tcpdump jq
 )
 elif [ "$PKG_MGR" = "apk" ]; then
-# Alpine package names
 PKGS=(
 build-base curl wget git nano vim python3 py3-pip py3-virtualenv
 nodejs npm bash-completion tmux htop screen unzip zip man fish net-tools
@@ -95,7 +70,6 @@ npm install -g nodemon eslint
 
 echo "[*] Configuring Git global settings..."
 
-# Ask user for git config details if not set
 read -rp "Enter your Git user.name: " git_name
 read -rp "Enter your Git user.email: " git_email
 
@@ -107,4 +81,17 @@ git config --global pull.rebase false
 echo "[✓] TuxShell environment setup complete!"
 echo "You can now use editors (vim, nano), Python3, Node.js, Bash, Git, and more."
 
-echo "Tip: Add '$HOME/bin' and your repo's 'bin' directory to your PATH in your shell profile."
+# Update PATH in .bashrc if not already present
+PROFILE="$HOME/.bashrc"
+if ! grep -q 'ios-Tuxshell/bin' "$PROFILE"; then
+echo "[*] Adding PATH update to $PROFILE..."
+{
+echo ''
+echo '# Added by TuxShell setup_env.sh'
+echo 'export PATH="$HOME/bin:$PATH"'
+echo 'export PATH="$HOME/ios-Tuxshell/bin:$PATH"'
+} >> "$PROFILE"
+echo "Please restart your shell or run 'source $PROFILE' to update PATH."
+else
+echo "[*] PATH already configured in $PROFILE."
+fi
