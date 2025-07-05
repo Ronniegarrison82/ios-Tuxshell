@@ -35,7 +35,6 @@ Welcome to **TuxShell**, a fully portable and modular Linux terminal environment
 
 - 📱 Compatible with iSH and jailbroken iOS terminals  
 ## ⚡ Quickstart
-## ⚡ Quickstart
 
 ### ✅ Option 1: One-Liner Bootstrap (Recommended)
 
