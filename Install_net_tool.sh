@@ -1,14 +1,20 @@
 #!/bin/bash
-# net_tool.sh — Installs networking utilities for iOS-TuxShell
+# install_net_tool.sh — Installs networking utilities for iOS-TuxShell
 
 set -euo pipefail
 
 echo "[+] Installing networking tools..."
 
+# Check if sudo exists
+SUDO=""
+if command -v sudo >/dev/null 2>&1; then
+SUDO="sudo"
+fi
+
 if command -v apt >/dev/null 2>&1; then
 echo "[*] Detected apt (Debian/Ubuntu)..."
-apt update -y
-apt install -y \
+$SUDO apt update -y
+$SUDO apt install -y \
 net-tools \
 iputils-ping \
 dnsutils \
@@ -18,8 +24,8 @@ wget
 
 elif command -v apk >/dev/null 2>&1; then
 echo "[*] Detected apk (Alpine/iSH)..."
-apk update
-apk add --no-cache \
+$SUDO apk update
+$SUDO apk add --no-cache \
 net-tools \
 iputils \
 bind-tools \
