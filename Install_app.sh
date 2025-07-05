@@ -6,23 +6,51 @@ set -euo pipefail
 
 echo "[+] Starting core environment setup..."
 
+# Detect if sudo is available
+SUDO=""
+if command -v sudo >/dev/null 2>&1; then
+SUDO="sudo"
+fi
+
 if command -v apt >/dev/null 2>&1; then
 echo "[*] Using apt package manager..."
-apt update -y
-apt upgrade -y
+
+# Retry apt update up to 3 times
+for i in {1..3}; do
+if $SUDO apt update -y; then
+break
+else
+echo "[!] apt update attempt $i failed. Retrying..."
+sleep 2
+fi
+done
+
+$SUDO apt upgrade -y
 echo "[+] Installing base packages..."
-apt install -y \
+$SUDO apt install -y \
 build-essential curl wget git vim nano fish htop net-tools \
 iputils-ping tcpdump python3 python3-pip python3-venv lsof \
 software-properties-common screen tmux bash-completion man-db \
 openssh-client unzip zip jq gcc g++ make automake autoconf pkg-config
+
 elif command -v apk >/dev/null 2>&1; then
 echo "[*] Using apk package manager..."
-apk update
-apk add --no-cache \
+
+# Retry apk update up to 3 times
+for i in {1..3}; do
+if $SUDO apk update; then
+break
+else
+echo "[!] apk update attempt $i failed. Retrying..."
+sleep 2
+fi
+done
+
+$SUDO apk add --no-cache \
 build-base curl wget git vim nano fish htop net-tools \
 iputils tcpdump python3 py3-pip py3-virtualenv lsof \
 bash-completion openssh unzip zip jq gcc g++ make automake autoconf pkgconf man
+
 else
 echo "[!] No supported package manager found (apt or apk). Exiting."
 exit 1
