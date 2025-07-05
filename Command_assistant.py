@@ -3,7 +3,6 @@ import subprocess
 import difflib
 import openai
 import os
-import json
 import sys
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
