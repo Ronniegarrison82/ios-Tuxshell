@@ -1,5 +1,5 @@
 #!/bin/bash
-# monitor.sh - Resource usage monitor for iOS-TuxShell (iSH-safe version)
+# monitor.sh - Resource usage monitor for iOS-TuxShell (iSH-safe)
 
 set -euo pipefail
 
@@ -9,53 +9,41 @@ DISK_THRESH=90
 
 echo "[+] Running resource monitor..."
 
-# Default values
-cpu="0"
-mem="0"
-disk="0"
+cpu="n/a"
+mem="n/a"
+disk="n/a"
 
-# CPU Usage (%)
+# CPU Usage
 if command -v top >/dev/null 2>&1; then
 if top -bn1 2>/dev/null | grep -q "%Cpu"; then
 cpu=$(top -bn1 | awk '/%Cpu/ {print $2 + $4}' | awk '{printf("%.2f", $1)}')
 elif top -l 1 | grep -q "CPU usage:"; then
 cpu=$(top -l 1 | awk '/CPU usage:/ {print $3}' | sed 's/%//' | awk '{printf("%.2f", $1)}')
-else
-cpu="n/a"
 fi
-else
-cpu="n/a"
 fi
 
-# Memory Usage (%)
+# Memory Usage
 if command -v free >/dev/null 2>&1; then
-mem=$(free | awk '/Mem:/ {printf("%.2f", $3/$2 * 100.0)}')
-elif command -v vm_stat >/dev/null 2>&1; then
-pages_free=$(vm_stat | grep "Pages free" | awk '{print $3}' | tr -d '.')
-pages_active=$(vm_stat | grep "Pages active" | awk '{print $3}' | tr -d '.')
-pages_inactive=$(vm_stat | grep "Pages inactive" | awk '{print $3}' | tr -d '.')
-total=$(($pages_free + $pages_active + $pages_inactive))
-used=$(($pages_active + $pages_inactive))
-mem=$(awk "BEGIN {printf(\"%.2f\", $used / $total * 100)}")
-else
-mem="n/a"
+total_mem=$(free | awk '/Mem:/ {print $2}')
+used_mem=$(free | awk '/Mem:/ {print $3}')
+if [ "$total_mem" -ne 0 ]; then
+mem=$(awk "BEGIN {printf(\"%.2f\", $used_mem / $total_mem * 100)}")
+fi
 fi
 
-# Disk Usage (%)
+# Disk Usage
 if command -v df >/dev/null 2>&1; then
 disk=$(df / | awk 'END {gsub("%", "", $5); print $5+0}')
-else
-disk="n/a"
 fi
 
-# Output summary
+# Output
 echo "-----------------------------"
 echo " CPU Usage: ${cpu}%"
 echo " Memory Usage: ${mem}%"
 echo " Disk Usage: ${disk}%"
 echo "-----------------------------"
 
-# Warnings (only if numeric)
+# Warnings
 if [[ "$cpu" != "n/a" ]] && [[ $(echo "$cpu > $CPU_THRESH" | bc -l) -eq 1 ]]; then
 echo "[!] High CPU usage detected."
 fi
